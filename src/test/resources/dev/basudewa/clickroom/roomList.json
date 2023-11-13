@@ -1,0 +1,5 @@
+[
+  {"id": 100, "capacity": 50, "location": "fmipa"},
+  {"id": 101, "capacity": 40, "location": "fk"},
+  {"id": 102, "capacity": 30, "location": "fh"}
+]
