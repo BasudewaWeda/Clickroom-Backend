@@ -12,6 +12,7 @@ CREATE TABLE schedule (
     end_time TIME,
     lendee VARCHAR(50),
     lender VARCHAR(50),
+    detail VARCHAR(100),
     room_id BIGINT,
     FOREIGN KEY (room_id) REFERENCES room(id) ON UPDATE CASCADE ON DELETE CASCADE
 );

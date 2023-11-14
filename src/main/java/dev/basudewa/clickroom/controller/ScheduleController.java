@@ -69,6 +69,7 @@ public class ScheduleController {
                     newSchedule.endTime(),
                     principal.getName(),
                     principal.getName(),
+                    newSchedule.detail(),
                     newSchedule.roomId()
             );
 

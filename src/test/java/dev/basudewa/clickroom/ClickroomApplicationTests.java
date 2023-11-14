@@ -257,7 +257,7 @@ class ClickroomApplicationTests {
     @Test
     @DirtiesContext
     void shouldAllowAdminToAddASchedule1() {
-        Schedule schedule = new Schedule(null, "2023-11-09", "08:00", "10:30", null, null, 101L);
+        Schedule schedule = new Schedule(null, "2023-11-09", "08:00", "10:30", null, null, "Kuliah Rekayasa Perangkat Lunak", 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
                 .postForEntity("/schedule/admin", schedule, Void.class);
@@ -286,7 +286,7 @@ class ClickroomApplicationTests {
     @Test
     @DirtiesContext
     void shouldAllowAdminToAddASchedule2() {
-        Schedule schedule = new Schedule(null, "2023-11-09", "08:00", "10:00", null, null, 101L);
+        Schedule schedule = new Schedule(null, "2023-11-09", "08:00", "10:00", null, null, "Kuliah Rekayasa Perangkat Lunak", 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
                 .postForEntity("/schedule/admin", schedule, Void.class);
@@ -302,7 +302,7 @@ class ClickroomApplicationTests {
     @Test
     @DirtiesContext
     void shouldAllowAdminToAddASchedule3() {
-        Schedule schedule = new Schedule(null, "2023-11-09", "12:00", "14:00", null, null, 101L);
+        Schedule schedule = new Schedule(null, "2023-11-09", "12:00", "14:00", null, null, "Kuliah Rekayasa Perangkat Lunak", 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
                 .postForEntity("/schedule/admin", schedule, Void.class);
@@ -318,7 +318,7 @@ class ClickroomApplicationTests {
     @Test
     @DirtiesContext
     void shouldAllowAdminToAddASchedule4() {
-        Schedule schedule = new Schedule(null, "2023-11-09", "13:00", "14:00", null, null, 101L);
+        Schedule schedule = new Schedule(null, "2023-11-09", "13:00", "14:00", null, null, "Kuliah Rekayasa Perangkat Lunak", 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
                 .postForEntity("/schedule/admin", schedule, Void.class);
@@ -333,7 +333,7 @@ class ClickroomApplicationTests {
 
     @Test
     void shouldNotAllowAdminToAddScheduleThatCollidesWithAnotherSchedule1() {
-        Schedule schedule = new Schedule(null, "2023-11-09", "10:30", "12:00", null, null, 101L);
+        Schedule schedule = new Schedule(null, "2023-11-09", "10:30", "12:00", null, null, "Kuliah Rekayasa Perangkat Lunak", 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
                 .postForEntity("/schedule/admin", schedule, Void.class);
@@ -342,7 +342,7 @@ class ClickroomApplicationTests {
 
     @Test
     void shouldNotAllowAdminToAddScheduleThatCollidesWithAnotherSchedule2() {
-        Schedule schedule = new Schedule(null, "2023-11-09", "09:00", "11:00", null, null, 101L);
+        Schedule schedule = new Schedule(null, "2023-11-09", "09:00", "11:00", null, null, "Kuliah Rekayasa Perangkat Lunak", 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
                 .postForEntity("/schedule/admin", schedule, Void.class);
@@ -351,7 +351,7 @@ class ClickroomApplicationTests {
 
     @Test
     void shouldNotAllowAdminToAddScheduleThatCollidesWithAnotherSchedule3() {
-        Schedule schedule = new Schedule(null, "2023-11-09", "10:45", "11:45", null, null, 101L);
+        Schedule schedule = new Schedule(null, "2023-11-09", "10:45", "11:45", null, null, "Kuliah Rekayasa Perangkat Lunak", 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
                 .postForEntity("/schedule/admin", schedule, Void.class);
@@ -360,7 +360,7 @@ class ClickroomApplicationTests {
 
     @Test
     void shouldNotAllowAdminToAddScheduleThatCollidesWithAnotherSchedule4() {
-        Schedule schedule = new Schedule(null, "2023-11-09", "11:00", "13:00", null, null, 101L);
+        Schedule schedule = new Schedule(null, "2023-11-09", "11:00", "13:00", null, null, "Kuliah Rekayasa Perangkat Lunak", 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
                 .postForEntity("/schedule/admin", schedule, Void.class);
@@ -369,7 +369,7 @@ class ClickroomApplicationTests {
 
     @Test
     void shouldNotAllowNonAdminToMakeNewSchedule() {
-        Schedule schedule = new Schedule(null, "2023-11-08", "08:00", "10:00", null, null, 101L);
+        Schedule schedule = new Schedule(null, "2023-11-08", "08:00", "10:00", null, null, "Kuliah Rekayasa Perangkat Lunak", 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("2022A", "2022A")
                 .postForEntity("/schedule/admin", schedule, Void.class);
