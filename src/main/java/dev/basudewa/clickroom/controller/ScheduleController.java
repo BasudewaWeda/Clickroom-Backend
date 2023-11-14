@@ -33,7 +33,8 @@ public class ScheduleController {
                 )
         );
 
-        return ResponseEntity.ok(page.getContent());
+        if(page.hasContent()) return ResponseEntity.ok(page.getContent());
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping
@@ -46,7 +47,8 @@ public class ScheduleController {
                 )
         );
 
-        return ResponseEntity.ok(page.getContent());
+        if(page.hasContent()) return ResponseEntity.ok(page.getContent());
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{requestedId}")

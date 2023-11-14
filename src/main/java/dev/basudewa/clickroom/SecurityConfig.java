@@ -24,6 +24,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/room/admin/**").hasRole("ADMIN")
                         .requestMatchers("/schedule/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/facility/admin/**").hasRole("ADMIN")
                         .anyRequest().hasAnyRole("ADMIN", "USER")
                 )
                 .csrf(csrf -> csrf.disable())
@@ -49,12 +50,17 @@ public class SecurityConfig {
                 .password(passwordEncoder.encode("2022B"))
                 .roles("USER")
                 .build();
+        UserDetails user3 = users
+                .username("noschedule")
+                .password(passwordEncoder.encode("noschedule"))
+                .roles("USER")
+                .build();
         UserDetails admin1 = users
                 .username("admin1")
                 .password(passwordEncoder.encode("admin1"))
                 .roles("ADMIN")
                 .build();
-        return new InMemoryUserDetailsManager(user1, user2, admin1);
+        return new InMemoryUserDetailsManager(user1, user2, user3, admin1);
     }
 
 }

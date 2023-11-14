@@ -1,0 +1,5 @@
+[
+  {"id": 100, "facilityName": "Chair", "amount": 40, "roomId": 100},
+  {"id": 101, "facilityName": "Table", "amount": 20, "roomId": 100},
+  {"id": 102, "facilityName": "AC", "amount": 2, "roomId": 100}
+]

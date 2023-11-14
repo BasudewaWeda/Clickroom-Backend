@@ -16,3 +16,11 @@ CREATE TABLE schedule (
     room_id BIGINT,
     FOREIGN KEY (room_id) REFERENCES room(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE TABLE facility (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    facility_name VARCHAR(50),
+    amount INT,
+    room_id BIGINT,
+    FOREIGN KEY (room_id) REFERENCES room(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
