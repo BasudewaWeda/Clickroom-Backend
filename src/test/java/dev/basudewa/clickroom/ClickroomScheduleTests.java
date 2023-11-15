@@ -5,9 +5,11 @@ import com.jayway.jsonpath.JsonPath;
 import dev.basudewa.clickroom.entity.Schedule;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.exceptions.util.ScenarioPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,14 +83,6 @@ class ClickroomScheduleTests {
         ResponseEntity<String> response = restTemplate
                 .withBasicAuth("noschedule", "noschedule")
                 .getForEntity("/schedule", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-    }
-
-    @Test
-    void shouldNotReturnScheduleToNonLendee() {
-        ResponseEntity<String> response = restTemplate
-                .withBasicAuth("2022A", "2022A")
-                .getForEntity("/schedule/101", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
@@ -264,5 +258,46 @@ class ClickroomScheduleTests {
                 .withBasicAuth("2022A", "2022A")
                 .exchange("/schedule/admin/100", HttpMethod.DELETE, null, Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldAllowAdminToModifyAScheduleToAValidTime() {
+        Schedule scheduleUpdate = new Schedule(null, "2023-11-10", "10:00", "12:30", null, null, "Kuliah DAA", 101L);
+        HttpEntity<Schedule> request = new HttpEntity<>(scheduleUpdate);
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .exchange("/schedule/admin/101", HttpMethod.PUT, request, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        ResponseEntity<String> getResponse = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .getForEntity("/schedule/101", String.class);
+        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        Number id = documentContext.read("$.id");
+        assertThat(id).isEqualTo(101);
+
+        String borrowDate = documentContext.read("$.borrowDate");
+        assertThat(borrowDate).isEqualTo("2023-11-10");
+
+        String startTime = documentContext.read("$.startTime");
+        assertThat(startTime).isEqualTo("10:00:00");
+
+        String endTime = documentContext.read("$.endTime");
+        assertThat(endTime).isEqualTo("12:30:00");
+
+        String lendee = documentContext.read("$.lendee");
+        assertThat(lendee).isEqualTo("2022D");
+
+        String lender = documentContext.read("$.lender");
+        assertThat(lender).isEqualTo("admin1");
+
+        String detail = documentContext.read("$.detail");
+        assertThat(detail).isEqualTo("Kuliah DAA");
+
+        Number roomId = documentContext.read("$.roomId");
+        assertThat(roomId).isEqualTo(101);
     }
 }

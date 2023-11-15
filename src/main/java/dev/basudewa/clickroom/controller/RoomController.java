@@ -58,7 +58,13 @@ public class RoomController {
     public ResponseEntity<Void> updateRoom(@PathVariable Long requestedId, @RequestBody Room roomUpdate) {
         Room room = roomRepository.findRoomById(requestedId);
         if(room != null) {
-            Room updatedRoom = new Room(requestedId, roomUpdate.capacity(), roomUpdate.location());
+            int newCapacity = (roomUpdate.capacity() != 0) ? roomUpdate.capacity() : room.capacity();
+            String newLocation = (roomUpdate.location() != null) ? roomUpdate.location() : room.location();
+            Room updatedRoom = new Room(
+                    requestedId,
+                    newCapacity,
+                    newLocation
+            );
             roomRepository.save(updatedRoom);
             return ResponseEntity.noContent().build();
         }

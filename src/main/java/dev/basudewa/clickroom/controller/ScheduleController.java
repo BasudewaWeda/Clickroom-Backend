@@ -52,8 +52,8 @@ public class ScheduleController {
     }
 
     @GetMapping("/{requestedId}")
-    public ResponseEntity<Schedule> findScheduleById(@PathVariable Long requestedId, Principal principal) {
-        Schedule requestedSchedule = scheduleRepository.findScheduleByIdAndLendee(requestedId, principal.getName());
+    public ResponseEntity<Schedule> findScheduleById(@PathVariable Long requestedId) {
+        Schedule requestedSchedule = scheduleRepository.findScheduleById(requestedId);
         if(requestedSchedule != null) {
             return ResponseEntity.ok(requestedSchedule);
         }
@@ -86,6 +86,41 @@ public class ScheduleController {
 
         return ResponseEntity.badRequest().build();
     }
+
+    @PutMapping("/admin/{requestedId}")
+    public ResponseEntity<Void> updateSchedule(@PathVariable Long requestedId, @RequestBody Schedule scheduleUpdate, Principal principal) {
+        Schedule targetedSchedule = scheduleRepository.findScheduleById(requestedId);
+        if(targetedSchedule == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Schedule> collidingSchedule = scheduleRepository.findCollidingSchedule(scheduleUpdate.startTime(), scheduleUpdate.endTime(), scheduleUpdate.borrowDate(), scheduleUpdate.roomId());
+        if(collidingSchedule.size() != 0) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        String newBorrowDate = (scheduleUpdate.borrowDate() != null) ? scheduleUpdate.borrowDate() : targetedSchedule.borrowDate();
+        String newStartTime = (scheduleUpdate.startTime() != null) ? scheduleUpdate.startTime() : targetedSchedule.startTime();
+        String newEndTime = (scheduleUpdate.endTime() != null) ? scheduleUpdate.endTime() : targetedSchedule.endTime();
+        String newDetail = (scheduleUpdate.detail() != null) ? scheduleUpdate.detail() : targetedSchedule.detail();
+        Long newRoomId = (scheduleUpdate.roomId() != null) ? scheduleUpdate.roomId() : targetedSchedule.roomId();
+
+        Schedule modifiedSchedule = new Schedule(
+                requestedId,
+                newBorrowDate,
+                newStartTime,
+                newEndTime,
+                targetedSchedule.lendee(),
+                principal.getName(),
+                newDetail,
+                newRoomId
+        );
+
+        scheduleRepository.save(modifiedSchedule);
+
+        return ResponseEntity.noContent().build();
+    }
+
 
     @DeleteMapping("/{requestedId}")
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long requestedId, Principal principal) {
