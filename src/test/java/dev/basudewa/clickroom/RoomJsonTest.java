@@ -26,18 +26,20 @@ public class RoomJsonTest {
     @BeforeEach
     void setUp() {
         rooms = Arrays.array(
-                new Room(100L, 50, "fmipa"),
-                new Room(101L, 40, "fk"),
-                new Room(102L, 30, "fh")
+                new Room(100L, "Ruang 2.2", 50, "fmipa"),
+                new Room(101L, "Ruang 2.1", 40, "fk"),
+                new Room(102L, "Ruang 2.3", 30, "fh")
         );
     }
 
     @Test
     void roomSerializationTest() throws IOException {
-        Room room = new Room(100L, 50, "fmipa");
+        Room room = new Room(100L, "Ruang 2.2", 50, "fmipa");
         assertThat(json.write(room)).isStrictlyEqualToJson("room.json");
         assertThat(json.write(room)).hasJsonPathNumberValue("@.id");
         assertThat(json.write(room)).extractingJsonPathNumberValue("@.id").isEqualTo(100);
+        assertThat(json.write(room)).hasJsonPathStringValue("@.name");
+        assertThat(json.write(room)).extractingJsonPathStringValue("@.name").isEqualTo("Ruang 2.2");
         assertThat(json.write(room)).hasJsonPathNumberValue("@.capacity");
         assertThat(json.write(room)).extractingJsonPathNumberValue("@.capacity").isEqualTo(50);
         assertThat(json.write(room)).hasJsonPathStringValue("@.location");
@@ -49,13 +51,16 @@ public class RoomJsonTest {
         String expected = """
                 {
                     "id": 100,
+                    "name": "Ruang 2.2",
                     "capacity": 50,
                     "location": "fmipa"
                 }
                 """;
-        assertThat(json.parse(expected)).isEqualTo(new Room(100L, 50, "fmipa"));
+        assertThat(json.parse(expected)).isEqualTo(new Room(100L, "Ruang 2.2", 50, "fmipa"));
         assertThat(json.parseObject(expected).id()).isEqualTo(100);
+        assertThat(json.parseObject(expected).name()).isEqualTo("Ruang 2.2");
         assertThat(json.parseObject(expected).capacity()).isEqualTo(50);
+        assertThat(json.parseObject(expected).location()).isEqualTo("fmipa");
     }
 
     @Test
@@ -67,9 +72,9 @@ public class RoomJsonTest {
     void roomListDeserializationTest() throws IOException {
         String expected = """
                 [
-                    {"id": 100, "capacity": 50, "location": "fmipa"},
-                    {"id": 101, "capacity": 40, "location": "fk"},
-                    {"id": 102, "capacity": 30, "location": "fh"}
+                    {"id": 100, "name": "Ruang 2.2", "capacity": 50, "location": "fmipa"},
+                    {"id": 101, "name": "Ruang 2.1", "capacity": 40, "location": "fk"},
+                    {"id": 102, "name": "Ruang 2.3", "capacity": 30, "location": "fh"}
                 ]
                 """;
 

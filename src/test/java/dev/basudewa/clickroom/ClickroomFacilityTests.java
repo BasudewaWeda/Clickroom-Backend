@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -90,11 +91,86 @@ public class ClickroomFacilityTests {
     }
 
     @Test
-    void shouldNotAllowNotAdminToCreateNewFacility() {
+    void shouldNotAllowNonAdminToCreateNewFacility() {
         Facility newFacility = new Facility(null, "Projector", 1, 101L);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("2022A", "2022A")
                 .postForEntity("/facility/admin", newFacility, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void shouldAllowAdminToUpdateAFacility() {
+        Facility facilityUpdate = new Facility(null, "Speaker", 2, null);
+        HttpEntity<Facility> request = new HttpEntity<>(facilityUpdate);
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .exchange("/facility/admin/100", HttpMethod.PUT, request, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        ResponseEntity<String> getResponse = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .getForEntity("/facility/100", String.class);
+        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(getResponse.getBody());
+        Number id = documentContext.read("$.id");
+        assertThat(id).isEqualTo(100);
+
+        String facilityName = documentContext.read("$.facilityName");
+        assertThat(facilityName).isEqualTo("Speaker");
+
+        Number amount = documentContext.read("$.amount");
+        assertThat(amount).isEqualTo(2);
+    }
+
+    @Test
+    void shouldNotAllowAdminToUpdateNonExistingFacility() {
+        Facility facilityUpdate = new Facility(null, "Speaker", 2, null);
+        HttpEntity<Facility> request = new HttpEntity<>(facilityUpdate);
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .exchange("/facility/admin/10000000", HttpMethod.PUT, request, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldNotAllowNonAdminToUpdateFacility() {
+        Facility facilityUpdate = new Facility(null, "Speaker", 2, null);
+        HttpEntity<Facility> request = new HttpEntity<>(facilityUpdate);
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("2022A", "2022A")
+                .exchange("/facility/admin/100", HttpMethod.PUT, request, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldAllowAdminToDeleteFacility() {
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .exchange("/facility/admin/100", HttpMethod.DELETE, null, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        ResponseEntity<String> getResponse = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .getForEntity("/facility/100", String.class);
+        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldNotAllowAdminToDeleteNonExistingFacility() {
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .exchange("/facility/admin/1000000", HttpMethod.DELETE, null, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void shouldNotAllowNonAdminToDeleteFacility() {
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("2022A", "2022A")
+                .exchange("/facility/admin/100", HttpMethod.DELETE, null, Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 }

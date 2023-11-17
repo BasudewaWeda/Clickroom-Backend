@@ -46,7 +46,13 @@ public class RoomController {
 
     @PostMapping("/admin")
     public ResponseEntity<Void> createRoom(@RequestBody Room newRoom, UriComponentsBuilder ucb) {
-        Room savedRoom = roomRepository.save(newRoom);
+        Room tempRoom = new Room(
+                null,
+                newRoom.name(),
+                newRoom.capacity(),
+                newRoom.location()
+        );
+        Room savedRoom = roomRepository.save(tempRoom);
         URI locationOfNewRoom = ucb
                 .path("room/{id}")
                 .buildAndExpand(savedRoom.id())
@@ -58,13 +64,16 @@ public class RoomController {
     public ResponseEntity<Void> updateRoom(@PathVariable Long requestedId, @RequestBody Room roomUpdate) {
         Room room = roomRepository.findRoomById(requestedId);
         if(room != null) {
-            int newCapacity = (roomUpdate.capacity() != 0) ? roomUpdate.capacity() : room.capacity();
+            String newName = (roomUpdate.name() != null) ? roomUpdate.name() : room.name();
+            Integer newCapacity = (roomUpdate.capacity() != null) ? roomUpdate.capacity() : room.capacity();
             String newLocation = (roomUpdate.location() != null) ? roomUpdate.location() : room.location();
             Room updatedRoom = new Room(
                     requestedId,
+                    newName,
                     newCapacity,
                     newLocation
             );
+
             roomRepository.save(updatedRoom);
             return ResponseEntity.noContent().build();
         }
@@ -78,6 +87,7 @@ public class RoomController {
             roomRepository.deleteById(requestedId);
             return ResponseEntity.noContent().build();
         }
+
         return ResponseEntity.notFound().build();
     }
 }

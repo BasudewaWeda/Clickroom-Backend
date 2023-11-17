@@ -90,7 +90,7 @@ class ClickroomRoomTests {
     @Test
     @DirtiesContext
     void shouldAllowAdminToMakeANewRoom() {
-        Room room = new Room(null, 50, "fmipa");
+        Room room = new Room(null, "Ruang 2.2", 50, "fmipa");
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
                 .postForEntity("/room/admin", room, Void.class);
@@ -106,6 +106,9 @@ class ClickroomRoomTests {
         Number id = documentContext.read("$.id");
         assertThat(id).isNotNull();
 
+        String name = documentContext.read("$.name");
+        assertThat(name).isEqualTo(room.name());
+
         Number capacity = documentContext.read("$.capacity");
         assertThat(capacity).isEqualTo(room.capacity());
 
@@ -115,7 +118,7 @@ class ClickroomRoomTests {
 
     @Test
     void shouldNotAllowNonAdminToMakeANewRoom() {
-        Room room = new Room(null, 50, "fmipa");
+        Room room = new Room(null, "Ruang 2.2", 50, "fmipa");
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("2022A", "2022A")
                 .postForEntity("/room/admin", room, Void.class);
@@ -125,7 +128,7 @@ class ClickroomRoomTests {
     @Test
     @DirtiesContext
     void shouldAllowAdminToUpdateAnExsitingRoom() {
-        Room roomUpdate = new Room(null, 40, "fmipa");
+        Room roomUpdate = new Room(null, "Ruang 2.1", 40, "fmipa");
         HttpEntity<Room> request = new HttpEntity<>(roomUpdate);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
@@ -141,6 +144,9 @@ class ClickroomRoomTests {
         Number id = documentContext.read("$.id");
         assertThat(id).isEqualTo(100);
 
+        String name = documentContext.read("$.name");
+        assertThat(name).isEqualTo("Ruang 2.1");
+
         Number capacity = documentContext.read("$.capacity");
         assertThat(capacity).isEqualTo(40);
 
@@ -150,7 +156,7 @@ class ClickroomRoomTests {
 
     @Test
     void shouldNotAllowAdminToUpdateNonExisitingRoom() {
-        Room roomUpdate = new Room(null, 40, "fmipa");
+        Room roomUpdate = new Room(null, "Ruang 2.2", 40, "fmipa");
         HttpEntity<Room> request = new HttpEntity<>(roomUpdate);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("admin1", "admin1")
@@ -160,7 +166,7 @@ class ClickroomRoomTests {
 
     @Test
     void shouldNotAllowNonAdminToUpdateRoom() {
-        Room roomUpdate = new Room(null, 40, "fmipa");
+        Room roomUpdate = new Room(null, "Ruang 2.2", 40, "fmipa");
         HttpEntity<Room> request = new HttpEntity<>(roomUpdate);
         ResponseEntity<Void> response = restTemplate
                 .withBasicAuth("2022A", "2022A")

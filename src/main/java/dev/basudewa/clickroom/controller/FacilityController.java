@@ -57,4 +57,35 @@ public class FacilityController {
 
         return ResponseEntity.created(locationOfNewFacility).build();
     }
+
+    @PutMapping("/admin/{requestedId}")
+    public ResponseEntity<Void> updateFacility(@PathVariable Long requestedId, @RequestBody Facility facilityUpdate) {
+        Facility facility = facilityRepository.findFacilityById(requestedId);
+        if(facility != null) {
+            String newName = (facilityUpdate.facilityName() != null) ? facilityUpdate.facilityName() : facility.facilityName();
+            Integer newAmount = (facilityUpdate.amount() != null) ? facilityUpdate.amount() : facility.amount();
+
+            Facility updatedFacility = new Facility(
+                    requestedId,
+                    newName,
+                    newAmount,
+                    facility.roomId()
+            );
+
+            facilityRepository.save(updatedFacility);
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/admin/{requestedId}")
+    public ResponseEntity<Void> deleteFacilitY(@PathVariable Long requestedId) {
+        if(facilityRepository.findFacilityById(requestedId) != null) {
+            facilityRepository.deleteById(requestedId);
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.notFound().build();
+    }
 }
