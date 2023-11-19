@@ -39,6 +39,12 @@ public class ScheduleJsonTest {
         assertThat(json.write(schedule)).isStrictlyEqualToJson("schedule.json");
         assertThat(json.write(schedule)).hasJsonPathNumberValue("@.id");
         assertThat(json.write(schedule)).extractingJsonPathNumberValue("@.id").isEqualTo(100);
+        assertThat(json.write(schedule)).hasJsonPathStringValue("@.borrowDate");
+        assertThat(json.write(schedule)).extractingJsonPathStringValue("@.borrowDate").isEqualTo("2023-11-08");
+        assertThat(json.write(schedule)).hasJsonPathStringValue("@.startTime");
+        assertThat(json.write(schedule)).extractingJsonPathStringValue("@.startTime").isEqualTo("10:30");
+        assertThat(json.write(schedule)).hasJsonPathStringValue("@.endTime");
+        assertThat(json.write(schedule)).extractingJsonPathStringValue("@.endTime").isEqualTo("12:00");
         assertThat(json.write(schedule)).hasJsonPathStringValue("@.lendee");
         assertThat(json.write(schedule)).extractingJsonPathStringValue("@.lendee").isEqualTo("2022A");
         assertThat(json.write(schedule)).hasJsonPathStringValue("@.lender");

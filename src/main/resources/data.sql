@@ -11,3 +11,8 @@ INSERT INTO schedule(id, borrow_date, start_time, end_time, lendee, lender, deta
 INSERT INTO facility(id, facility_name, amount, room_id) VALUES (100, 'Chair', 40, 100);
 INSERT INTO facility(id, facility_name, amount, room_id) VALUES (101, 'Table', 20, 100);
 INSERT INTO facility(id, facility_name, amount, room_id) VALUES (102, 'AC', 2, 100);
+
+INSERT INTO request(id, borrow_date, start_time, end_time, lendee, detail, status, room_id) VALUES (100, '2023-11-20', '10:30', '12:00', '2022A', 'Kuliah Rekayasa Perangkat Lunak', 'Pending', 100);
+INSERT INTO request(id, borrow_date, start_time, end_time, lendee, detail, status, room_id) VALUES (101, '2023-11-20', '10:30', '12:00', '2022B', 'Kuliah Basis Data', 'Pending', 101);
+INSERT INTO request(id, borrow_date, start_time, end_time, lendee, detail, status, room_id) VALUES (102, '2023-11-20', '10:30', '12:00', '2022C', 'Kuliah Teori Bahasa Dan Otomata', 'Pending', 102);
+INSERT INTO request(id, borrow_date, start_time, end_time, lendee, detail, status, room_id) VALUES (103, '2023-11-20', '12:30', '15:00', '2022A', 'Kuliah Pemrograman Berorientasi Objek', 'Pending', 103);

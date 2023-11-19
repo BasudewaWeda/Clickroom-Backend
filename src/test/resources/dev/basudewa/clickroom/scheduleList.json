@@ -1,5 +1,5 @@
 [
-  {"id": 100, "borrowDate": "2023-11-08", "startTime": "10:30", "endTime": "12:00", "lendee": "2022A", "lender": "admin1", "detail": "Kuliah Rekayasa Perangkat Lunak",  "roomId": 100},
+  {"id": 100, "borrowDate": "2023-11-08", "startTime": "10:30", "endTime": "12:00", "lendee": "2022A", "lender": "admin1", "detail": "Kuliah Rekayasa Perangkat Lunak", "roomId": 100},
   {"id": 101, "borrowDate": "2023-11-08", "startTime": "10:30", "endTime": "12:00", "lendee": "2022B", "lender": "admin1", "detail": "Kuliah Basis Data", "roomId": 101},
   {"id": 102, "borrowDate": "2023-11-08", "startTime": "10:30", "endTime": "12:00", "lendee": "2022C", "lender": "admin1", "detail": "Kuliah Teori Bahasa Dan Otomata", "roomId": 102}
 ]

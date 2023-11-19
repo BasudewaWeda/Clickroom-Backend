@@ -2,7 +2,6 @@ package dev.basudewa.clickroom.controller;
 
 import dev.basudewa.clickroom.entity.Room;
 import dev.basudewa.clickroom.repository.RoomRepository;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
@@ -29,7 +28,7 @@ public class RoomController {
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, "location"))
+                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, "location", "capacity"))
                 )
         );
         return ResponseEntity.ok(page.getContent());
@@ -64,14 +63,11 @@ public class RoomController {
     public ResponseEntity<Void> updateRoom(@PathVariable Long requestedId, @RequestBody Room roomUpdate) {
         Room room = roomRepository.findRoomById(requestedId);
         if(room != null) {
-            String newName = (roomUpdate.name() != null) ? roomUpdate.name() : room.name();
-            Integer newCapacity = (roomUpdate.capacity() != null) ? roomUpdate.capacity() : room.capacity();
-            String newLocation = (roomUpdate.location() != null) ? roomUpdate.location() : room.location();
             Room updatedRoom = new Room(
                     requestedId,
-                    newName,
-                    newCapacity,
-                    newLocation
+                    roomUpdate.name(),
+                    roomUpdate.capacity(),
+                    roomUpdate.location()
             );
 
             roomRepository.save(updatedRoom);

@@ -5,7 +5,6 @@ import com.jayway.jsonpath.JsonPath;
 import dev.basudewa.clickroom.entity.Schedule;
 import net.minidev.json.JSONArray;
 import org.junit.jupiter.api.Test;
-import org.mockito.internal.exceptions.util.ScenarioPrinter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;

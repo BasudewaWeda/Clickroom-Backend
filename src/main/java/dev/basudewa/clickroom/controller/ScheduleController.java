@@ -23,13 +23,18 @@ public class ScheduleController {
 
     public ScheduleController(ScheduleRepository scheduleRepository) { this.scheduleRepository = scheduleRepository; }
 
+    private boolean isNotCollidingWithOtherSchedule(Schedule newSchedule) {
+        List<Schedule> collidingSchedules = scheduleRepository.findCollidingSchedule(newSchedule.startTime(), newSchedule.endTime(), newSchedule.borrowDate(), newSchedule.roomId());
+        return collidingSchedules.size() == 0;
+    }
+
     @GetMapping("/room/{requestedId}")
     public ResponseEntity<List<Schedule>> findScheduleByRoomId(@PathVariable Long requestedId, Pageable pageable) {
         Page<Schedule> page = scheduleRepository.findScheduleByRoomId(requestedId,
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, "borrow_date"))
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "borrow_date", "start_time"))
                 )
         );
 
@@ -43,7 +48,7 @@ public class ScheduleController {
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.DESC, "borrow_date"))
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "borrow_date"))
                 )
         );
 
@@ -62,8 +67,7 @@ public class ScheduleController {
 
     @PostMapping("/admin")
     public ResponseEntity<Void> createSchedule(@RequestBody Schedule newSchedule, Principal principal, UriComponentsBuilder ucb) {
-        List<Schedule> collidingSchedules = scheduleRepository.findCollidingSchedule(newSchedule.startTime(), newSchedule.endTime(), newSchedule.borrowDate(), newSchedule.roomId());
-        if(collidingSchedules.size() == 0) {
+        if(isNotCollidingWithOtherSchedule(newSchedule)) {
             Schedule modifiedSchedule = new Schedule(
                     null,
                     newSchedule.borrowDate(),
@@ -94,31 +98,24 @@ public class ScheduleController {
             return ResponseEntity.notFound().build();
         }
 
-        List<Schedule> collidingSchedule = scheduleRepository.findCollidingSchedule(scheduleUpdate.startTime(), scheduleUpdate.endTime(), scheduleUpdate.borrowDate(), scheduleUpdate.roomId());
-        if(collidingSchedule.size() != 0) {
-            return ResponseEntity.badRequest().build();
+        if(isNotCollidingWithOtherSchedule(scheduleUpdate)) {
+            Schedule modifiedSchedule = new Schedule(
+                    requestedId,
+                    scheduleUpdate.borrowDate(),
+                    scheduleUpdate.startTime(),
+                    scheduleUpdate.endTime(),
+                    targetedSchedule.lendee(),
+                    principal.getName(),
+                    scheduleUpdate.detail(),
+                    scheduleUpdate.roomId()
+            );
+
+            scheduleRepository.save(modifiedSchedule);
+
+            return ResponseEntity.noContent().build();
         }
 
-        String newBorrowDate = (scheduleUpdate.borrowDate() != null) ? scheduleUpdate.borrowDate() : targetedSchedule.borrowDate();
-        String newStartTime = (scheduleUpdate.startTime() != null) ? scheduleUpdate.startTime() : targetedSchedule.startTime();
-        String newEndTime = (scheduleUpdate.endTime() != null) ? scheduleUpdate.endTime() : targetedSchedule.endTime();
-        String newDetail = (scheduleUpdate.detail() != null) ? scheduleUpdate.detail() : targetedSchedule.detail();
-        Long newRoomId = (scheduleUpdate.roomId() != null) ? scheduleUpdate.roomId() : targetedSchedule.roomId();
-
-        Schedule modifiedSchedule = new Schedule(
-                requestedId,
-                newBorrowDate,
-                newStartTime,
-                newEndTime,
-                targetedSchedule.lendee(),
-                principal.getName(),
-                newDetail,
-                newRoomId
-        );
-
-        scheduleRepository.save(modifiedSchedule);
-
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.badRequest().build();
     }
 
 
