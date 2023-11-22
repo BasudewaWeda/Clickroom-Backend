@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -102,6 +101,66 @@ public class RequestController {
                     requestUpdate.detail(),
                     targetedRequest.status(),
                     requestUpdate.roomId()
+            );
+
+            requestRepository.save(modifiedRequest);
+
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("/admin/{requestedId}")
+    public ResponseEntity<Void> acceptRequest(@RequestParam("status") String status, @PathVariable Long requestedId, Principal principal, UriComponentsBuilder ucb) {
+        Request targetedRequest = requestRepository.findRequestById(requestedId);
+        if(targetedRequest == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if(status.equalsIgnoreCase("accept")) {
+            Request modifiedRequest = new Request(
+                    requestedId,
+                    targetedRequest.borrowDate(),
+                    targetedRequest.startTime(),
+                    targetedRequest.endTime(),
+                    targetedRequest.lendee(),
+                    targetedRequest.detail(),
+                    "Accepted",
+                    targetedRequest.roomId()
+            );
+
+            requestRepository.save(modifiedRequest);
+
+            Schedule newSchedule = new Schedule(
+                    null,
+                    modifiedRequest.borrowDate(),
+                    modifiedRequest.startTime(),
+                    modifiedRequest.endTime(),
+                    modifiedRequest.lendee(),
+                    principal.getName(),
+                    modifiedRequest.detail(),
+                    modifiedRequest.roomId()
+            );
+
+            Schedule savedSchedule = scheduleRepository.save(newSchedule);
+            URI locationOfNewSchedule = ucb
+                    .path("/schedule/{id}")
+                    .buildAndExpand(savedSchedule.id())
+                    .toUri();
+
+            return ResponseEntity.created(locationOfNewSchedule).build();
+        }
+        else if(status.equalsIgnoreCase("decline")) {
+            Request modifiedRequest = new Request(
+                    requestedId,
+                    targetedRequest.borrowDate(),
+                    targetedRequest.startTime(),
+                    targetedRequest.endTime(),
+                    targetedRequest.lendee(),
+                    targetedRequest.detail(),
+                    "Declined",
+                    targetedRequest.roomId()
             );
 
             requestRepository.save(modifiedRequest);

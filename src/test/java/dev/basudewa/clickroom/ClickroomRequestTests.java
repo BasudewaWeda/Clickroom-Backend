@@ -194,4 +194,105 @@ public class ClickroomRequestTests {
                 .exchange("/request/100", HttpMethod.DELETE, null, Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    @DirtiesContext
+    void shouldAllowAdminToAcceptARequest() {
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .exchange("/request/admin/100?status=accept", HttpMethod.PUT, null, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        ResponseEntity<String> getResponseRequest = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .getForEntity("/request/100", String.class);
+        assertThat(getResponseRequest.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext requestDocumentContext = JsonPath.parse(getResponseRequest.getBody());
+        Number requestId = requestDocumentContext.read("$.id");
+        assertThat(requestId).isEqualTo(100);
+
+        String requestStatus = requestDocumentContext.read("$.status");
+        assertThat(requestStatus).isEqualTo("Accepted");
+
+        URI locationOfNewSchedule = response.getHeaders().getLocation();
+        ResponseEntity<String> getResponseSchedule = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .getForEntity(locationOfNewSchedule, String.class);
+        assertThat(getResponseSchedule.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext scheduleDocumentContext = JsonPath.parse(getResponseSchedule.getBody());
+        Number scheduleId = scheduleDocumentContext.read("$.id");
+        assertThat(scheduleId).isNotNull();
+
+        String borrowDate = scheduleDocumentContext.read("$.borrowDate");
+        assertThat(borrowDate).isEqualTo("2023-11-20");
+
+        String startTime = scheduleDocumentContext.read("$.startTime");
+        assertThat(startTime).isEqualTo("10:30:00");
+
+        String endTime = scheduleDocumentContext.read("$.endTime");
+        assertThat(endTime).isEqualTo("12:00:00");
+
+        String lendee = scheduleDocumentContext.read("$.lendee");
+        assertThat(lendee).isEqualTo("2022A");
+
+        String lender = scheduleDocumentContext.read("$.lender");
+        assertThat(lender).isEqualTo("admin1");
+
+        String detail = scheduleDocumentContext.read("$.detail");
+        assertThat(detail).isEqualTo("Kuliah Rekayasa Perangkat Lunak");
+
+        Number roomId = scheduleDocumentContext.read("$.roomId");
+        assertThat(roomId).isEqualTo(100);
+    }
+
+    @Test
+    @DirtiesContext
+    void shouldAllowAdminToDeclineRequest() {
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .exchange("/request/admin/100?status=decline", HttpMethod.PUT, null, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+
+        ResponseEntity<String> getResponseRequest = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .getForEntity("/request/100", String.class);
+        assertThat(getResponseRequest.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext requestDocumentContext = JsonPath.parse(getResponseRequest.getBody());
+        Number requestId = requestDocumentContext.read("$.id");
+        assertThat(requestId).isEqualTo(100);
+
+        String requestStatus = requestDocumentContext.read("$.status");
+        assertThat(requestStatus).isEqualTo("Declined");
+    }
+
+    @Test
+    void shouldNotAllowNonAdminToAcceptOrDeclineRequest() {
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("2022A", "2022A")
+                .exchange("/request/admin/100?status=decline", HttpMethod.PUT, null, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+    }
+
+    @Test
+    void shouldNotAllowAdminToModifyRequestWithoutRequestParameters() {
+        ResponseEntity<Void> response = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .exchange("/request/admin/100", HttpMethod.PUT, null, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+        ResponseEntity<String> getResponseRequest = restTemplate
+                .withBasicAuth("admin1", "admin1")
+                .getForEntity("/request/100", String.class);
+        assertThat(getResponseRequest.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext requestDocumentContext = JsonPath.parse(getResponseRequest.getBody());
+        Number requestId = requestDocumentContext.read("$.id");
+        assertThat(requestId).isEqualTo(100);
+
+        String requestStatus = requestDocumentContext.read("$.status");
+        assertThat(requestStatus).isEqualTo("Pending");
+    }
 }

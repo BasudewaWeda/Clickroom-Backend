@@ -25,6 +25,7 @@ public class SecurityConfig {
                         .requestMatchers("/room/admin/**").hasRole("ADMIN")
                         .requestMatchers("/schedule/admin/**").hasRole("ADMIN")
                         .requestMatchers("/facility/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/request/admin/**").hasRole("ADMIN")
                         .anyRequest().hasAnyRole("ADMIN", "USER")
                 )
                 .csrf(csrf -> csrf.disable())
