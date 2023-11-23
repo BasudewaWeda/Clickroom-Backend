@@ -27,8 +27,10 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // See https://docs.gradle.org/8.3/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
 
-	implementation 'org.springframework.data:spring-data-jdbc'
+//	implementation 'org.springframework.data:spring-data-jdbc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 	testImplementation 'com.h2database:h2'
+	runtimeOnly 'com.mysql:mysql-connector-j'
 }
 
 tasks.named('test') {

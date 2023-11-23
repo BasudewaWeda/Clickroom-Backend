@@ -13,13 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.security.Principal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/facility")
 public class FacilityController {
-    private final FacilityRepository facilityRepository;
+    private FacilityRepository facilityRepository;
 
     public FacilityController(FacilityRepository facilityRepository) { this.facilityRepository = facilityRepository; }
 
@@ -80,7 +79,7 @@ public class FacilityController {
     }
 
     @DeleteMapping("/admin/{requestedId}")
-    public ResponseEntity<Void> deleteFacilitY(@PathVariable Long requestedId) {
+    public ResponseEntity<Void> deleteFacility(@PathVariable Long requestedId) {
         if(facilityRepository.findFacilityById(requestedId) != null) {
             facilityRepository.deleteById(requestedId);
             return ResponseEntity.noContent().build();

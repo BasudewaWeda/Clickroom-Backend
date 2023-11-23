@@ -6,8 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import java.util.List;
-
 public interface RequestRepository extends CrudRepository<Request, Long>, PagingAndSortingRepository<Request, Long> {
     public Page<Request> findRequestByLendee(String lendee, Pageable pageable);
     public Request findRequestByIdAndLendee(Long id, String lendee);

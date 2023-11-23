@@ -1,9 +1,9 @@
 package dev.basudewa.clickroom.controller;
 
-import dev.basudewa.clickroom.entity.Request;
-import dev.basudewa.clickroom.entity.Schedule;
 import dev.basudewa.clickroom.repository.RequestRepository;
 import dev.basudewa.clickroom.repository.ScheduleRepository;
+import dev.basudewa.clickroom.entity.Request;
+import dev.basudewa.clickroom.entity.Schedule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +21,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/request")
 public class RequestController {
-    private final RequestRepository requestRepository;
-    private final ScheduleRepository scheduleRepository;
+    private RequestRepository requestRepository;
+    private ScheduleRepository scheduleRepository;
 
     private boolean isNotCollidingWithOtherSchedule(Request newRequest) {
         List<Schedule> collidingSchedules = scheduleRepository.findCollidingSchedule(newRequest.startTime(), newRequest.endTime(), newRequest.borrowDate(), newRequest.roomId());

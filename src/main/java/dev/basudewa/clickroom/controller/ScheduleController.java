@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/schedule")
 public class ScheduleController {
-    private final ScheduleRepository scheduleRepository;
+    private ScheduleRepository scheduleRepository;
 
     public ScheduleController(ScheduleRepository scheduleRepository) { this.scheduleRepository = scheduleRepository; }
 

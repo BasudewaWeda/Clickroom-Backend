@@ -1,8 +1,6 @@
 package dev.basudewa.clickroom.repository;
 
 import dev.basudewa.clickroom.entity.Room;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
