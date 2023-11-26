@@ -1,7 +1,15 @@
 package dev.basudewa.clickroom.room;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import dev.basudewa.clickroom.facility.Facility;
+import dev.basudewa.clickroom.request.Request;
+import dev.basudewa.clickroom.schedule.Schedule;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -16,4 +24,17 @@ public class Room {
     private String roomName;
     private Integer roomCapacity;
     private String roomLocation;
+
+    @JsonManagedReference
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "room")
+    private List<Facility> facilities;
+
+    @JsonManagedReference
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "room")
+    private List<Schedule> schedules;
+
+    @JsonIgnore
+    @JsonManagedReference
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "room")
+    private List<Request> requests;
 }
