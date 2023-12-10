@@ -19,7 +19,21 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long>, Pagin
             "((start_time > :startTime AND start_time < :endTime) " +
             "OR (start_time < :startTime AND end_time > :endTime) " +
             "OR (end_time > :startTime AND end_time < :endTime) " +
-            "OR (start_time = :startTime AND end_time = :endTime)) " +
+            "OR (start_time = :startTime AND end_time = :endTime)" +
+            "OR (start_time = :startTime)" +
+            "OR (end_time = :endTime)) " +
+            "AND borrow_date = :borrowDate " +
+            "AND room_id = :roomId " +
+            "AND id != :id", nativeQuery = true)
+    public List<Schedule> findCollidingSchedule(Time startTime, Time endTime, Date borrowDate, Long roomId, Long id);
+
+    @Query(value = "SELECT * FROM schedule WHERE " +
+            "((start_time > :startTime AND start_time < :endTime) " +
+            "OR (start_time < :startTime AND end_time > :endTime) " +
+            "OR (end_time > :startTime AND end_time < :endTime) " +
+            "OR (start_time = :startTime AND end_time = :endTime)" +
+            "OR (start_time = :startTime)" +
+            "OR (end_time = :endTime)) " +
             "AND borrow_date = :borrowDate " +
             "AND room_id = :roomId", nativeQuery = true)
     public List<Schedule> findCollidingSchedule(Time startTime, Time endTime, Date borrowDate, Long roomId);

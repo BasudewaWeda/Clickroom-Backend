@@ -10,6 +10,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,18 +27,53 @@ public class ScheduleService {
     }
 
     public boolean isNotCollidingWithOtherSchedule(Schedule newSchedule) {
-        List<Schedule> collidingSchedules = scheduleRepository.findCollidingSchedule(newSchedule.getStartTime(), newSchedule.getEndTime(), newSchedule.getBorrowDate(), newSchedule.getRoom().getId());
+        List<Schedule> collidingSchedules = scheduleRepository.findCollidingSchedule(newSchedule.getStartTime(), newSchedule.getEndTime(), newSchedule.getBorrowDate(), newSchedule.getRoom().getId(), newSchedule.getId());
         return collidingSchedules.size() == 0;
     }
 
-    public Page<Schedule> getScheduleByLendee(Principal principal, Pageable pageable) {
-        return scheduleRepository.findScheduleByLendee(principal.getName(),
+    public ScheduleResponse buildResponse(Schedule schedule) {
+        return ScheduleResponse
+                .builder()
+                .id(schedule.getId())
+                .borrowDate(schedule.getBorrowDate())
+                .startTime(schedule.getStartTime())
+                .endTime(schedule.getEndTime())
+                .lendee(schedule.getLendee())
+                .lender(schedule.getLender())
+                .borrowDetail(schedule.getBorrowDetail())
+                .roomId(schedule.getRoom().getId())
+                .roomName(schedule.getRoom().getRoomName())
+                .roomLocation(schedule.getRoom().getRoomLocation())
+                .roomCapacity(schedule.getRoom().getRoomCapacity())
+                .build();
+    }
+
+    public ScheduleListResponse buildResponseList(List<Schedule> scheduleList) {
+        List<ScheduleResponse> schedules = new ArrayList<>();
+        for(Schedule schedule : scheduleList) {
+            schedules.add(buildResponse(schedule));
+        }
+
+        return ScheduleListResponse
+                .builder()
+                .scheduleList(schedules)
+                .build();
+    }
+
+    public ScheduleListResponse getScheduleByLendee(Principal principal, Pageable pageable) {
+        Page<Schedule> requestedSchedules = scheduleRepository.findScheduleByLendee(principal.getName(),
                 PageRequest.of(
                         pageable.getPageNumber(),
                         pageable.getPageSize(),
                         pageable.getSortOr(Sort.by(Sort.Direction.ASC, "borrowDate"))
                 )
         );
+
+        if(!requestedSchedules.hasContent()) {
+            return null;
+        }
+
+        return buildResponseList(requestedSchedules.getContent());
     }
 
     public Schedule getScheduleByIdAndLendee(Long requestedId, String lendee) {

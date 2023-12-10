@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,22 +26,77 @@ public class RequestService {
         return collidingSchedules.size() == 0;
     }
 
-    public boolean requestExists(Long requestedId) {
-        return requestRepository.findRequestById(requestedId) != null;
+    public boolean requestExists(Long requestedId, String lendee) {
+        return requestRepository.findRequestByIdAndLendee(requestedId, lendee) != null;
     }
 
-    public Page<Request> getRequestByLendee(Principal principal, Pageable pageable) {
-        return requestRepository.findRequestByLendee(principal.getName(),
-                PageRequest.of(
-                        pageable.getPageNumber(),
-                        pageable.getPageSize(),
-                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "borrowDate", "startTime"))
-                )
-        );
+    public RequestResponse buildResponse(Request request) {
+        return RequestResponse
+                .builder()
+                .id(request.getId())
+                .borrowDate(request.getBorrowDate())
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .requestStatus(request.getRequestStatus())
+                .lendee(request.getLendee())
+                .borrowDetail(request.getBorrowDetail())
+                .roomId(request.getRoom().getId())
+                .roomCapacity(request.getRoom().getRoomCapacity())
+                .roomLocation(request.getRoom().getRoomLocation())
+                .roomName(request.getRoom().getRoomName())
+                .build();
     }
 
-    public Request getRequestByIdAndLendee(Long requestedId, String lendee) {
+    public RequestListResponse buildResponseList(List<Request> requestList) {
+        List<RequestResponse> requests = new ArrayList<>();
+        for(Request request : requestList) {
+            requests.add(buildResponse(request));
+        }
+
+        return RequestListResponse
+                .builder()
+                .requestList(requests)
+                .build();
+    }
+
+    public RequestListResponse getRequestByLendee(Principal principal, Pageable pageable) {
+        Page<Request> requestedRequests = requestRepository.findRequestByLendee(principal.getName(), PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSortOr(Sort.by(Sort.Direction.ASC, "borrowDate", "startTime"))
+        ));
+
+        if(!requestedRequests.hasContent()) {
+            return null;
+        }
+
+        return buildResponseList(requestedRequests.getContent());
+    }
+
+    public RequestListResponse getAllRequest(Pageable pageable) {
+        Page<Request> requestedRequests = requestRepository.findAll(PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSortOr(Sort.by(Sort.Direction.ASC, "borrowDate", "startTime"))
+        ));
+
+        if(!requestedRequests.hasContent()) {
+            return null;
+        }
+
+        return buildResponseList(requestedRequests.getContent());
+    }
+
+    public Request getRequestByIdAndLendeeNoResponseObject(Long requestedId, String lendee) {
         return requestRepository.findRequestByIdAndLendee(requestedId, lendee);
+    }
+
+    public RequestResponse getRequestByIdAndLendee(Long requestedId, String lendee) {
+        Request requestedRequest = requestRepository.findRequestByIdAndLendee(requestedId, lendee);
+        if(requestedRequest == null) {
+            return null;
+        }
+        return buildResponse(requestedRequest);
     }
 
     public Request getRequestById(Long requestedId) {
@@ -83,6 +139,10 @@ public class RequestService {
     }
 
     public URI acceptRequestByAdmin(Long requestedId, Principal principal, UriComponentsBuilder ucb, Request targetedRequest) {
+        if(scheduleRepository.findCollidingSchedule(targetedRequest.getStartTime(), targetedRequest.getEndTime(), targetedRequest.getBorrowDate(), targetedRequest.getRoom().getId()).size() != 0) {
+            return null;
+        }
+
         Request modifiedRequest = new Request(
                 requestedId,
                 targetedRequest.getBorrowDate(),

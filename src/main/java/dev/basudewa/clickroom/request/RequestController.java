@@ -18,29 +18,37 @@ public class RequestController {
     private final RequestService requestService;
 
     @GetMapping
-    public ResponseEntity<List<Request>> findRequestByLendee(Principal principal, Pageable pageable) {
-        Page<Request> page = requestService.getRequestByLendee(principal, pageable);
+    public ResponseEntity<RequestListResponse> findRequestByLendee(Principal principal, Pageable pageable) {
+        RequestListResponse response = requestService.getRequestByLendee(principal, pageable);
 
-        if(page.hasContent()) return ResponseEntity.ok(page.getContent());
-        return ResponseEntity.notFound().build();
+        if(response == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{requestedId}")
-    public ResponseEntity<Request> findRequestById(@PathVariable Long requestedId, Principal principal) {
-        Request requestedRequest = requestService.getRequestByIdAndLendee(requestedId, principal.getName());
-        if(requestedRequest != null) {
-            return ResponseEntity.ok(requestedRequest);
+    public ResponseEntity<RequestResponse> findRequestById(@PathVariable Long requestedId, Principal principal) {
+        RequestResponse response = requestService.getRequestByIdAndLendee(requestedId, principal.getName());
+        if(response != null) {
+            return ResponseEntity.ok(response);
         }
 
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/admin")
+    public ResponseEntity<RequestListResponse> getAllRequest(Pageable pageable) {
+        RequestListResponse response = requestService.getAllRequest(pageable);
+
+        if(response == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping
-    public ResponseEntity<Void> createRequest(@RequestBody Request newRequest, Principal principal, UriComponentsBuilder ucb) {
+    public ResponseEntity<URI> createRequest(@RequestBody Request newRequest, Principal principal, UriComponentsBuilder ucb) {
         if(requestService.isNotCollidingWithOtherSchedule(newRequest)) {
             URI locationOfNewRequest = requestService.createRequest(newRequest, ucb, principal);
 
-            return ResponseEntity.created(locationOfNewRequest).build();
+            return ResponseEntity.created(locationOfNewRequest).body(locationOfNewRequest);
         }
 
         return ResponseEntity.badRequest().build();
@@ -48,7 +56,7 @@ public class RequestController {
 
     @PutMapping("/{requestedId}")
     public ResponseEntity<Void> updateRequest(@PathVariable Long requestedId, Principal principal, @RequestBody Request requestUpdate) {
-        Request targetedRequest = requestService.getRequestByIdAndLendee(requestedId, principal.getName());
+        Request targetedRequest = requestService.getRequestByIdAndLendeeNoResponseObject(requestedId, principal.getName());
         if(targetedRequest == null) {
             return ResponseEntity.notFound().build();
         }
@@ -72,6 +80,9 @@ public class RequestController {
         if(status.equalsIgnoreCase("accept")) {
             URI locationOfNewSchedule = requestService.acceptRequestByAdmin(requestedId, principal, ucb, targetedRequest);
 
+            if(locationOfNewSchedule == null) {
+                return ResponseEntity.badRequest().build();
+            }
             return ResponseEntity.created(locationOfNewSchedule).build();
         }
         else if(status.equalsIgnoreCase("decline")) {
@@ -85,7 +96,7 @@ public class RequestController {
 
     @DeleteMapping("/{requestedId}")
     public ResponseEntity<Void> deleteRequest(@PathVariable Long requestedId, Principal principal) {
-        if(requestService.requestExists(requestedId)) {
+        if(requestService.requestExists(requestedId, principal.getName())) {
             requestService.deleteRequest(requestedId);
             return ResponseEntity.noContent().build();
         }

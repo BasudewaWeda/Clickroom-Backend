@@ -24,9 +24,9 @@ public class FacilityController {
     }
 
     @PostMapping("/admin")
-    public ResponseEntity<Void> createFacility(@RequestBody Facility newFacility, UriComponentsBuilder ucb) {
+    public ResponseEntity<URI> createFacility(@RequestBody Facility newFacility, UriComponentsBuilder ucb) {
         URI locationOfNewFacility = facilityService.createFacility(newFacility, ucb);
-        return ResponseEntity.created(locationOfNewFacility).build();
+        return ResponseEntity.created(locationOfNewFacility).body(locationOfNewFacility);
     }
 
     @PutMapping("/admin/{requestedId}")

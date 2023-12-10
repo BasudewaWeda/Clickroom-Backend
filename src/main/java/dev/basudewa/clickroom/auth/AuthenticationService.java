@@ -24,6 +24,8 @@ public class AuthenticationService {
         return AuthenticationResponse
                 .builder()
                 .token(jwt)
+                .username(user.getUsername())
+                .role(user.getRole())
                 .build();
     }
 

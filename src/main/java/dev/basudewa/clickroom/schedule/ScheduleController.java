@@ -3,13 +3,11 @@ package dev.basudewa.clickroom.schedule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/schedule")
@@ -18,11 +16,11 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     @GetMapping
-    public ResponseEntity<List<Schedule>> findScheduleByLendee(Principal principal, Pageable pageable) {
-        Page<Schedule> page = scheduleService.getScheduleByLendee(principal, pageable);
+    public ResponseEntity<ScheduleListResponse> findScheduleByLendee(Principal principal, Pageable pageable) {
+        ScheduleListResponse response = scheduleService.getScheduleByLendee(principal, pageable);
 
-        if(page.hasContent()) return ResponseEntity.ok(page.getContent());
-        return ResponseEntity.notFound().build();
+        if(response == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{requestedId}")
@@ -36,10 +34,10 @@ public class ScheduleController {
     }
 
     @PostMapping("/admin")
-    public ResponseEntity<Void> createSchedule(@RequestBody Schedule newSchedule, Principal principal, UriComponentsBuilder ucb) {
+    public ResponseEntity<URI> createSchedule(@RequestBody Schedule newSchedule, Principal principal, UriComponentsBuilder ucb) {
         if(scheduleService.isNotCollidingWithOtherSchedule(newSchedule)) {
             URI locationOfNewSchedule = scheduleService.createScheduleByAdmin(newSchedule, ucb, principal);
-            return ResponseEntity.created(locationOfNewSchedule).build();
+            return ResponseEntity.created(locationOfNewSchedule).body(locationOfNewSchedule);
         }
 
         return ResponseEntity.badRequest().build();

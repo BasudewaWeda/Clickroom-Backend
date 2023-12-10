@@ -32,9 +32,9 @@ public class RoomController {
     }
 
     @PostMapping("/admin")
-    public ResponseEntity<Void> createRoom(@RequestBody Room newRoom, UriComponentsBuilder ucb) {
+    public ResponseEntity<URI> createRoom(@RequestBody Room newRoom, UriComponentsBuilder ucb) {
         URI locationOfNewRoom = roomService.createRoom(newRoom, ucb);
-        return ResponseEntity.created(locationOfNewRoom).build();
+        return ResponseEntity.created(locationOfNewRoom).body(locationOfNewRoom);
     }
 
     @PutMapping("/admin/{requestedId}")
