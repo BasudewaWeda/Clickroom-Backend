@@ -50,7 +50,7 @@ public class ScheduleController {
             return ResponseEntity.notFound().build();
         }
 
-        if(scheduleService.isNotCollidingWithOtherSchedule(scheduleUpdate)) {
+        if(scheduleService.isNotCollidingWithOtherSchedule(scheduleUpdate, requestedId)) {
             scheduleService.updateSchedule(requestedId, scheduleUpdate, targetedSchedule);
 
             return ResponseEntity.noContent().build();

@@ -27,7 +27,12 @@ public class ScheduleService {
     }
 
     public boolean isNotCollidingWithOtherSchedule(Schedule newSchedule) {
-        List<Schedule> collidingSchedules = scheduleRepository.findCollidingSchedule(newSchedule.getStartTime(), newSchedule.getEndTime(), newSchedule.getBorrowDate(), newSchedule.getRoom().getId(), newSchedule.getId());
+        List<Schedule> collidingSchedules = scheduleRepository.findCollidingSchedule(newSchedule.getStartTime(), newSchedule.getEndTime(), newSchedule.getBorrowDate(), newSchedule.getRoom().getId());
+        return collidingSchedules.size() == 0;
+    }
+
+    public boolean isNotCollidingWithOtherSchedule(Schedule newSchedule, Long id) {
+        List<Schedule> collidingSchedules = scheduleRepository.findCollidingSchedule(newSchedule.getStartTime(), newSchedule.getEndTime(), newSchedule.getBorrowDate(), newSchedule.getRoom().getId(), id);
         return collidingSchedules.size() == 0;
     }
 
