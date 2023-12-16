@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: dev.basudewa.clickroom.ClickroomApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.544 s -- in dev.basudewa.clickroom.ClickroomApplicationTests
